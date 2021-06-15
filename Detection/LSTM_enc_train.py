@@ -71,4 +71,3 @@ plt.show()
 
 enc_save = keras.Model(inputs=visible, outputs=bottleneck)
 enc_save.save('encoder.h5')
-~                                       
