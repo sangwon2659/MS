@@ -30,6 +30,7 @@ model.summary()
 model.fit(input_data, input_data, epochs=300, verbose=1)
 '''
 
+# Load Data
 data = read_csv("/home/a283/DetectionAlgorithm/Data.csv", header=None)
 input_data = np.array(data.iloc[0:100,0:500])
 timesteps, n_features = np.shape(input_data)
