@@ -40,7 +40,8 @@ history = {"loss": [], "accuracy": []};
 
 ### Fitting model ###
 # Fitting each row of input data
-for i in range(8):
+Training_data_row_num = 1000
+for i in range(Training_data_row_num):
         print("---------------------------------------{}th Row".format(i))
         print("---------------------------------------{}th Row".format(i))
         print("---------------------------------------{}th Row".format(i))
@@ -50,8 +51,8 @@ for i in range(8):
         print("---------------------------------------{}th Row".format(i))
         print("---------------------------------------{}th Row".format(i))
         # Slicing input_data row by row
-        temp = input_data[0,i,0:500].reshape(1,1,500)
-        history_temp = model.fit(temp, temp, epochs=50, verbose=1)
+        input_data_temp = input_data[0,i,0:500].reshape(1,1,500)
+        history_temp = model.fit(input_data_temp, input_data_temp, epochs=50, verbose=1)
         # Adding history_temp data to history
         # Extend function adds the history_temp list as single elements
         history["loss"].extend(history_temp.history['loss'])
