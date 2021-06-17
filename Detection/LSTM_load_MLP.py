@@ -70,14 +70,14 @@ for i in range(Training_data_row_num):
 plt.plot(history['loss'])
 plt.title('Model Loss')
 plt.ylabel('Loss')
-plt.xlable('Epoch')
+plt.xlabel('Epoch')
 plt.show()
 
 # Plotting accuracy
 plt.plot(history['accuracy'])
 plt.title('Model Accuracy')
 plt.ylabel('Accuracy')
-plt.xlable('Epoch')
+plt.xlabel('Epoch')
 plt.show()
 
 # Prediction from encoded test data through the MLP model
