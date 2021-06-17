@@ -1,3 +1,35 @@
+import numpy as np
+import matplotlib.pyplot as plt
+from keras.layers import LSTM
+from keras.layers import RepeatVector
+from keras.layers import TimeDistributed
+from keras.layers import Dense
+from keras.layers import Input
+from tensorflow import keras
+from pandas import read_csv
+
+'''
+input_data = np.array([[1,2], [1.1,2.1],[1.01, 2.13]])
+timesteps, n_features = np.shape(input_data)
+
+input_data = input_data.reshape(1,3,2)
+
+test_data = np.array([[1.2,2.1],[1.01,1.9],[1.23,2]])
+test_data = test_data.reshape(1,3,2)
+
+model = keras.Sequential()
+model.add(LSTM(128, activation='relu', input_shape=(timesteps, n_features), return_sequences=True))
+model.add(LSTM(64, activation='relu', return_sequences=False))
+model.add(RepeatVector(timesteps))
+model.add(LSTM(64, activation='relu', return_sequences=True))
+model.add(LSTM(128, activation='relu', return_sequences=True))
+model.add(TimeDistributed(Dense(n_features)))
+model.compile(optimizer='adam', loss='mse')
+model.summary()
+
+model.fit(input_data, input_data, epochs=300, verbose=1)
+'''
+
 ### Loading data ###
 data = read_csv("/home/a283/DetectionAlgorithm/Data.csv", header=None)
 # Input data from 3000 to remove noise
