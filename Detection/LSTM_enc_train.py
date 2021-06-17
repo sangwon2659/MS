@@ -78,7 +78,8 @@ model.summary()
 
 ### Fitting model ###
 # Fitting each row of input data
-for i in range(1000):
+Training_data_row_num = 1000
+for i in range(Training_data_row_num):
         print("---------------------------------------{}th Row".format(i))
         print("---------------------------------------{}th Row".format(i))
         print("---------------------------------------{}th Row".format(i))
