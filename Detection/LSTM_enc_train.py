@@ -88,8 +88,8 @@ for i in range(1000):
         print("---------------------------------------{}th Row".format(i))
         print("---------------------------------------{}th Row".format(i))
         # Slicing input_data row by row
-        temp = input_data[0,i,0:500].reshape(1,1,500)
-        model.fit(temp, temp, epochs=4000, verbose=1)
+        input_data_temp = input_data[0,i,0:500].reshape(1,1,500)
+        model.fit(input_data_temp, input_data_temp, epochs=4000, verbose=1)
 
 ### Plotting history ### 
 #plt.plot(history.history['loss'])
