@@ -13,28 +13,32 @@ from pandas import read_csv
 data = read_csv("/home/a283/DetectionAlgorithm/Data.csv", header=None)
 # Data normalization
 data_norm = np.array(data)
+data_norm = data_norm[4000:4700,:]
 data_max, data_min = data_norm.max(), data_norm.min()
 max_min_diff = data_max-data_min
 data_norm[:,0:500] = data_norm[:,0:500]/max_min_diff
+# Shuffle data
+np.random.shuffle(data_norm)
+print(np.shape(data_norm))
 
-x_train_data = data_norm[4000:4600,0:500]
+x_train_data = data_norm[0:600,0:500]
 x_train_timesteps, x_train_n_features = np.shape(x_train_data)
 x_train_data = x_train_data.reshape(1, x_train_timesteps, x_train_n_features)
 
-y_train_data = data_norm[4000:4600,500]
+y_train_data = data_norm[0:600,500]
 y_train_timesteps = len(y_train_data)
 y_train_data = y_train_data.reshape(1, 1, y_train_timesteps)
 
-x_test_data = data_norm[4000:4600,0:500]
+x_test_data = data_norm[600:700,0:500]
 x_test_timesteps, x_test_n_features = np.shape(x_test_data)
 x_test_data = x_test_data.reshape(1, x_test_timesteps, x_test_n_features)
 
-y_test_data = data_norm[4000:4600,500]
+y_test_data = data_norm[600:700,500]
 y_test_timesteps = len(y_test_data)
 y_test_data = y_test_data.reshape(1, 1, y_test_timesteps)
 
 ### Loading encoder ###
-encoder = load_model('encoder.h5')
+encoder = load_model('encoder_.h5')
 
 ### Creating the MLP model ###
 # MLP with 1024 -> 512 -> 256 -> 2 layers
