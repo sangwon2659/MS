@@ -11,19 +11,25 @@ from pandas import read_csv
 # Dividing data into x_train, y_train, x_test and y_test
 # Data starting from 3000 to remove noise
 data = read_csv("/home/a283/DetectionAlgorithm/Data.csv", header=None)
-x_train_data = np.array(data.iloc[3000:12000,0:500])
+# Data normalization
+data_norm = np.array(data)
+data_max, data_min = data_norm.max(), data_norm.min()
+max_min_diff = data_max-data_min
+data_norm[:,0:500] = data_norm[:,0:500]/max_min_diff
+
+x_train_data = data_norm[4000:4600,0:500]
 x_train_timesteps, x_train_n_features = np.shape(x_train_data)
 x_train_data = x_train_data.reshape(1, x_train_timesteps, x_train_n_features)
 
-y_train_data = np.array(data.iloc[3000:12000,500])
+y_train_data = data_norm[4000:4600,500]
 y_train_timesteps = len(y_train_data)
 y_train_data = y_train_data.reshape(1, 1, y_train_timesteps)
 
-x_test_data = np.array(data.iloc[12000:15000,0:500])
+x_test_data = data_norm[4000:4600,0:500]
 x_test_timesteps, x_test_n_features = np.shape(x_test_data)
 x_test_data = x_test_data.reshape(1, x_test_timesteps, x_test_n_features)
 
-y_test_data = np.array(data.iloc[12000:15000,500])
+y_test_data = data_norm[4000:4600,500]
 y_test_timesteps = len(y_test_data)
 y_test_data = y_test_data.reshape(1, 1, y_test_timesteps)
 
