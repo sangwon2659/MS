@@ -45,6 +45,9 @@ model.compile(loss='binary_crossentropy', optimizer='adam', metrics=['accuracy']
 # Extracting a summary of the model
 model.summary()
 
+# Defining history
+history = {"loss": [], "accuracy": []};
+
 ### Fitting data into the model ###
 Training_data_row_num = 4000
 for i in range(Training_data_row_num):
@@ -56,11 +59,26 @@ for i in range(Training_data_row_num):
                 y_train_data_temp = np.array([[[1, 0]]])
         else:
                 y_train_data_temp = np.array([[[0, 1]]])
-        model.fit(x_train_enc, y_train_data_temp, epochs = 300, verbose = 1)
+        history_temp = model.fit(x_train_enc, y_train_data_temp, epochs = 300, verbose = 1)
+        # Adding history_temp data to history
+        # Extend function adds the history_temp list as single elements
+        history["loss"].extend(history_temp.history['loss'])
+        history["accuracy"].extend(history_temp.history['accuracy'])
 
 ### Plotting history ###
-#plt.plot(history.history['loss'])
-#plt.show()
+# Plotting loss
+plt.plot(history['loss'])
+plt.title('Model Loss')
+plt.ylabel('Loss')
+plt.xlable('Epoch')
+plt.show()
+
+# Plotting accuracy
+plt.plot(history['accuracy'])
+plt.title('Model Accuracy')
+plt.ylabel('Accuracy')
+plt.xlable('Epoch')
+plt.show()
 
 # Prediction from encoded test data through the MLP model
 #yhat = model.predict(x_test_enc)
