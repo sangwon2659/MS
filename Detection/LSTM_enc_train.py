@@ -30,45 +30,81 @@ model.summary()
 model.fit(input_data, input_data, epochs=300, verbose=1)
 '''
 
-# Load Data
+'''
+Preprocessing data
+
+input_data = input_data[0,0,0:500].reshape(1,1,500) 
+print(input_data)
+
+test_data = test_data[0,0,0:500].reshape(1,1,500)
+'''
+
+### Loading data ###
 data = read_csv("/home/a283/DetectionAlgorithm/Data.csv", header=None)
-input_data = np.array(data.iloc[0:100,0:500])
+# Input data from 3000 to remove noise
+input_data = np.array(data.iloc[3000:12000,0:500])
 timesteps, n_features = np.shape(input_data)
+# Reshaping data fit for learning
 input_data = input_data.reshape(1, timesteps, n_features)
 
-test_data = np.array(data.iloc[100:200,0:500])
+# Dividing into test data
+test_data = np.array(data.iloc[12000:15000,0:500])
 test_timesteps, test_n_features = np.shape(test_data)
 test_data = test_data.reshape(1, test_timesteps, test_n_features)
 
-# Define encoder
-visible = Input(shape=(timesteps, n_features,))
-encoder = LSTM(128, activation='relu', input_shape=(timesteps, n_features), return_sequences=True)(visible)
-encoder = LSTM(64, activation='relu', return_sequences=False)(encoder)
+### Defining model ###
+# Defining input shape
+visible = Input(shape=(1, n_features,))
+# LSTM encoder of shapes 128 and 64
+encoder = LSTM(128, activation='relu', input_shape=(1, n_features), return_sequences=True)(visible)
+encoder = LSTM(64, activation='relu', return_sequences=True)(encoder)
 
 # Bottleneck
 #n_bottleneck = 64
 #bottleneck = Dense(n_bottleneck)(encoder)
-bottleneck = encoder
 
-# Reconstruction decoder
-decoder = RepeatVector(timesteps)(encoder)
-decoder = LSTM(64, activation='relu', return_sequences=True)(decoder)
+# Reconstruction decoder of shapes 64 and 128
+#decoder = RepeatVector(timesteps)(encoder)
+decoder = LSTM(64, activation='relu', return_sequences=True)(encoder)
 decoder = LSTM(128, activation='relu', return_sequences=True)(decoder)
+# Organizing output back into the shape of input
 decoder = TimeDistributed(Dense(n_features))(decoder)
 
-# Tie together
+# Tying encoder and decoder into one model
 model = keras.Model(inputs=visible, outputs=decoder)
 model.compile(optimizer='adam', loss='mse')
+# Printing a summary of the model
+model.summary()
 
-# Fit model
-history = model.fit(input_data, input_data, epochs=300, verbose=1)
+### Fitting model ###
+# Fitting each row of input data
+for i in range(1000):
+        print("---------------------------------------{}th Row".format(i))
+        print("---------------------------------------{}th Row".format(i))
+        print("---------------------------------------{}th Row".format(i))
+        print("---------------------------------------{}th Row".format(i))
+        print("---------------------------------------{}th Row".format(i))
+        print("---------------------------------------{}th Row".format(i))
+        print("---------------------------------------{}th Row".format(i))
+        print("---------------------------------------{}th Row".format(i))
+        # Slicing input_data row by row
+        temp = input_data[0,i,0:500].reshape(1,1,500)
+        model.fit(temp, temp, epochs=4000, verbose=1)
 
-# Demonstrate prediction
-yhat = model.predict(test_data, verbose=1)
+### Plotting history ### 
+#plt.plot(history.history['loss'])
+#plt.show()
+
+### Prediction ###
+# Slicing test_data into one row
+test_data_ = test_data[0,0,0:500].reshape(1,1,500)
+# Predicting using the whole model
+yhat = model.predict(test_data_, verbose=1)
+# Printing the test_data put in and the prediction from the whole model
+print(test_data_)
 print(yhat)
 
-plt.plot(history.history['loss'])
-plt.show()
-
-enc_save = keras.Model(inputs=visible, outputs=bottleneck)
+### Saving h5 file ###
+# Defining enc_save as a model from the input upto the encoder
+enc_save = keras.Model(inputs=visible, outputs=encoder)
 enc_save.save('encoder.h5')
