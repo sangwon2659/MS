@@ -1,44 +1,3 @@
-import numpy as np
-import matplotlib.pyplot as plt
-from keras.layers import LSTM
-from keras.layers import RepeatVector
-from keras.layers import TimeDistributed
-from keras.layers import Dense
-from keras.layers import Input
-from tensorflow import keras
-from pandas import read_csv
-
-'''
-input_data = np.array([[1,2], [1.1,2.1],[1.01, 2.13]])
-timesteps, n_features = np.shape(input_data)
-
-input_data = input_data.reshape(1,3,2)
-
-test_data = np.array([[1.2,2.1],[1.01,1.9],[1.23,2]])
-test_data = test_data.reshape(1,3,2)
-
-model = keras.Sequential()
-model.add(LSTM(128, activation='relu', input_shape=(timesteps, n_features), return_sequences=True))
-model.add(LSTM(64, activation='relu', return_sequences=False))
-model.add(RepeatVector(timesteps))
-model.add(LSTM(64, activation='relu', return_sequences=True))
-model.add(LSTM(128, activation='relu', return_sequences=True))
-model.add(TimeDistributed(Dense(n_features)))
-model.compile(optimizer='adam', loss='mse')
-model.summary()
-
-model.fit(input_data, input_data, epochs=300, verbose=1)
-'''
-
-'''
-Preprocessing data
-
-input_data = input_data[0,0,0:500].reshape(1,1,500) 
-print(input_data)
-
-test_data = test_data[0,0,0:500].reshape(1,1,500)
-'''
-
 ### Loading data ###
 data = read_csv("/home/a283/DetectionAlgorithm/Data.csv", header=None)
 # Input data from 3000 to remove noise
@@ -72,14 +31,16 @@ decoder = TimeDistributed(Dense(n_features))(decoder)
 
 # Tying encoder and decoder into one model
 model = keras.Model(inputs=visible, outputs=decoder)
-model.compile(optimizer='adam', loss='mse')
+model.compile(optimizer='adam', loss='mse', metrics=['accuracy'])
 # Printing a summary of the model
 model.summary()
 
+# Defining history
+history = {"loss": [], "accuracy": []};
+
 ### Fitting model ###
 # Fitting each row of input data
-Training_data_row_num = 1000
-for i in range(Training_data_row_num):
+for i in range(8):
         print("---------------------------------------{}th Row".format(i))
         print("---------------------------------------{}th Row".format(i))
         print("---------------------------------------{}th Row".format(i))
@@ -89,12 +50,16 @@ for i in range(Training_data_row_num):
         print("---------------------------------------{}th Row".format(i))
         print("---------------------------------------{}th Row".format(i))
         # Slicing input_data row by row
-        input_data_temp = input_data[0,i,0:500].reshape(1,1,500)
-        model.fit(input_data_temp, input_data_temp, epochs=4000, verbose=1)
+        temp = input_data[0,i,0:500].reshape(1,1,500)
+        history_temp = model.fit(temp, temp, epochs=50, verbose=1)
+        # Adding history_temp data to history
+        # Extend function adds the history_temp list as single elements
+        history["loss"].extend(history_temp.history['loss'])
+        history["accuracy"].extend(history_temp.history['accuracy'])
 
 ### Plotting history ### 
-#plt.plot(history.history['loss'])
-#plt.show()
+plt.plot(history['loss'])
+plt.show()
 
 ### Prediction ###
 # Slicing test_data into one row
@@ -108,4 +73,4 @@ print(yhat)
 ### Saving h5 file ###
 # Defining enc_save as a model from the input upto the encoder
 enc_save = keras.Model(inputs=visible, outputs=encoder)
-enc_save.save('encoder.h5')
+enc_save.save('encoder_.h5')
