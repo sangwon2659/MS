@@ -32,14 +32,20 @@ model.fit(input_data, input_data, epochs=300, verbose=1)
 
 ### Loading data ###
 data = read_csv("/home/a283/DetectionAlgorithm/Data.csv", header=None)
+# Data normalization
+data_norm = np.array(data)
+data_max, data_min = data_norm.max(), data_norm.min()
+max_min_diff = data_max-data_min
+data_norm = data_norm/max_min_diff
+
 # Input data from 3000 to remove noise
-input_data = np.array(data.iloc[3000:12000,0:500])
+input_data = data_norm[3000:12000,0:500]
 timesteps, n_features = np.shape(input_data)
 # Reshaping data fit for learning
 input_data = input_data.reshape(1, timesteps, n_features)
 
 # Dividing into test data
-test_data = np.array(data.iloc[12000:15000,0:500])
+test_data = data_norm[12000:15000,0:500]
 test_timesteps, test_n_features = np.shape(test_data)
 test_data = test_data.reshape(1, test_timesteps, test_n_features)
 
@@ -72,19 +78,13 @@ history = {"loss": [], "accuracy": []};
 
 ### Fitting model ###
 # Fitting each row of input data
-Training_data_row_num = 1000
+Training_data_row_num = 10
+epochs_ = 300
 for i in range(Training_data_row_num):
-        print("---------------------------------------{}th Row".format(i))
-        print("---------------------------------------{}th Row".format(i))
-        print("---------------------------------------{}th Row".format(i))
-        print("---------------------------------------{}th Row".format(i))
-        print("---------------------------------------{}th Row".format(i))
-        print("---------------------------------------{}th Row".format(i))
-        print("---------------------------------------{}th Row".format(i))
         print("---------------------------------------{}th Row".format(i))
         # Slicing input_data row by row
         input_data_temp = input_data[0,i,0:500].reshape(1,1,500)
-        history_temp = model.fit(input_data_temp, input_data_temp, epochs=50, verbose=1)
+        history_temp = model.fit(input_data_temp, input_data_temp, epochs=epochs_, verbose=1)
         # Adding history_temp data to history
         # Extend function adds the history_temp list as single elements
         history["loss"].extend(history_temp.history['loss'])
@@ -107,7 +107,7 @@ plt.show()
 
 ### Prediction ###
 # Slicing test_data into one row
-test_data_ = test_data[0,0,0:500].reshape(1,1,500)
+test_data_ = data_norm[3000,0:500].reshape(1,1,500)
 # Predicting using the whole model
 yhat = model.predict(test_data_, verbose=1)
 # Printing the test_data put in and the prediction from the whole model
@@ -118,3 +118,4 @@ print(yhat)
 # Defining enc_save as a model from the input upto the encoder
 enc_save = keras.Model(inputs=visible, outputs=encoder)
 enc_save.save('encoder_.h5')
+
