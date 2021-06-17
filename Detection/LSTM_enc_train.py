@@ -91,7 +91,18 @@ for i in range(Training_data_row_num):
         history["accuracy"].extend(history_temp.history['accuracy'])
 
 ### Plotting history ### 
+# Plotting loss
 plt.plot(history['loss'])
+plt.title('Model Loss')
+plt.ylabel('Loss')
+plt.xlable('Epoch')
+plt.show()
+
+# Plotting accuracy
+plt.plot(history['accuracy'])
+plt.title('Model Accuracy')
+plt.ylabel('Accuracy')
+plt.xlable('Epoch')
 plt.show()
 
 ### Prediction ###
