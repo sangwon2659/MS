@@ -48,6 +48,7 @@ model.compile(optimizer='adam', loss='mse', metrics=['accuracy'])
 # Printing a summary of the model
 model.summary()
 
+### Fitting model with the same input and output data ###
 epoch = 50
 history = model.fit(input_data, input_data, epochs = epoch, verbose=1)
 
