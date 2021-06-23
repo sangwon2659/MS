@@ -48,8 +48,7 @@ model.compile(optimizer='adam', loss='mse', metrics=['accuracy'])
 # Printing a summary of the model
 model.summary()
 
-### Fitting model with the same input and output data ###
-epoch = 10
+epoch = 50
 history = model.fit(input_data, input_data, epochs = epoch, verbose=1)
 
 ### Plotting history ### 
@@ -61,11 +60,12 @@ plt.xlabel('Epoch')
 plt.show()
 
 # Evaluating the results qualitatively
-test_data_temp = input_data[0,0:500]
-test_data_temp = test_data_temp.reshape((1,n_features,1))
-yhat = model.predict(test_data_temp, verbose=1)
-print(test_data_temp)
-print(yhat)
+for i in range(5):
+	test_data_temp = test_data[i,0:500]
+	test_data_temp = test_data_temp.reshape((1,n_features,1))
+	yhat = model.predict(test_data_temp, verbose=1)
+	test_data_yhat = np.column_stack((test_data_temp[i,0:500], yhat[0,0:500]))
+	print(test_data_yhat)
 
 # Saving the encoder
 enc_save = keras.Model(inputs = visible, outputs = encoder)
