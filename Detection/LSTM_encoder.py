@@ -61,11 +61,11 @@ plt.show()
 
 # Evaluating the results qualitatively
 for i in range(5):
-	test_data_temp = test_data[i,0:500]
-	test_data_temp = test_data_temp.reshape((1,n_features,1))
-	yhat = model.predict(test_data_temp, verbose=1)
-	test_data_yhat = np.column_stack((test_data_temp[i,0:500], yhat[0,0:500]))
-	print(test_data_yhat)
+        test_data_temp = input_data[i,0:500]
+        test_data_temp = test_data_temp.reshape((1,n_features,1))
+        yhat = model.predict(test_data_temp, verbose=1)
+        test_data_yhat = np.column_stack((test_data_temp[0,0:500], yhat[0,0:500]))
+        print(test_data_yhat)
 
 # Saving the encoder
 enc_save = keras.Model(inputs = visible, outputs = encoder)
