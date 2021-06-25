@@ -1,0 +1,89 @@
+import numpy as np
+import matplotlib.pyplot as plt
+from keras.layers import LSTM
+from keras.layers import RepeatVector
+from keras.layers import TimeDistributed
+from keras.layers import Dense
+from keras.layers import Input
+from tensorflow import keras
+from pandas import read_csv
+
+### Parameter Variables ###
+FFT_Hz = 500
+input_data_min = 4500
+input_data_max = 5500
+test_data_min = 7750
+test_data_max = 8000
+epoch = 1
+
+### Preparing Raw Data ###
+data = read_csv("Data.csv", header=None)
+# Data normalization
+data_norm = np.array(data)
+data_norm = data_norm[:,0:FFT_Hz]
+data_max, data_min = data_norm.max(), data_norm.min()
+max_min_diff = data_max-data_min
+data_norm = (data_norm/max_min_diff)*100
+# Reshape data to fit into format
+timesteps, n_features = data_norm.shape
+data_norm = data_norm.reshape(timesteps, n_features, 1)
+input_samples = input_data_max - input_data_min
+test_samples = test_data_max - test_data_min
+
+### Preprocessing Data ###
+# Input data
+input_data = data_norm[input_data_min:input_data_max, :, 0]
+np.random.shuffle(input_data)
+input_data = input_data.reshape(input_samples, FFT_Hz, 1)
+
+# Test data
+test_data = data_norm[test_data_min:test_data_max, :, 0]
+np.random.shuffle(test_data)
+test_data = test_data.reshape(test_samples, FFT_Hz, 1)
+
+### Defining Model ###
+### Model is a LSTM combined with MLP for binary slip classification purposes ###
+# Defining input shape
+visible = Input(shape=(n_features, 1))
+# LSTM encoder of shapes 128 and 64
+encoder = LSTM(128, activation='relu', input_shape=(n_features, 1), return_sequences=True)(visible)
+encoder = LSTM(64, activation='relu', return_sequences=True)(encoder)
+
+# Reconstruction decoder of shapes 64 and 128
+#decoder = RepeatVector(64)(encoder)
+decoder = LSTM(64, activation='relu', return_sequences=True)(encoder)
+decoder = LSTM(128, activation='relu', return_sequences=True)(decoder)
+# Organizing output back into the shape of input
+decoder = TimeDistributed(Dense(1))(decoder)
+
+# Tying encoder and decoder into one model
+model = keras.Model(inputs=visible, outputs=decoder)
+model.compile(optimizer='adam', loss='mse', metrics=['accuracy'])
+# Printing a summary of the model
+model.summary()
+
+### Fitting model with the same input and output data ###
+history = model.fit(input_data, input_data, epochs = epoch, verbose=1)
+
+### Plotting history ### 
+# Plotting loss
+plt.plot(history.history['loss'])
+plt.title('Model Loss')
+plt.ylabel('Loss')
+plt.xlabel('Epoch')
+plt.show()
+
+# Evaluating the results qualitatively
+for i in range(5):
+        test_data_temp = input_data[i+4500, 0:500]
+        test_data_temp = test_data_temp.reshape((1, 1, n_features))
+        yhat = model.predict(test_data_temp, verbose=1)
+        test_data_yhat = np.column_stack((input_data[0:500, i+4500], yhat[0,0:500]))
+
+# Saving the encoder
+enc_save = keras.Model(inputs = visible, outputs = encoder)
+enc_save.save('encoder.h5')
+
+test = enc_save.predict(test_data_temp)
+print(np.shape(test))
+print(test)
