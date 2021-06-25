@@ -8,7 +8,6 @@ from keras.layers import Input
 from tensorflow import keras
 from pandas import read_csv
 
-
 ###################### Parameter Variables ######################
 
 FFT_Hz = 500
@@ -19,7 +18,6 @@ test_max = 8000
 epoch = 1
 
 #################################################################
-
 
 ################ Loading and Normalizing Raw Data ################
 
@@ -42,7 +40,6 @@ for i in range(total_samples):
 		data[i,500] = 1.0
 
 ##################################################################
-
 
 ###################### Preprocessing Data ########################
 
@@ -76,7 +73,6 @@ y_test_data = y_test_data.reshape(test_samples, 1, 1)
 
 ##################################################################
 
-
 ######################## Defining Model ##########################
 
 #Model is a LSTM combined with MLP for binary slip classification purposes
@@ -108,7 +104,6 @@ model.summary()
 
 #################################################################
 
-
 ################# Fitting and Evaluating Model ##################
 
 #Fitting model and saving into history
@@ -125,10 +120,3 @@ plt.show()
 evaluation = model.evaluate(x_test_data, y_test_data)
 
 ##################################################################
-
-
-
-
-
-
-
