@@ -47,7 +47,7 @@ for i in range(total_samples):
 
 #Declaring training data
 training_data = data[train_min:train_max, :]
-np.random.shuffle(training_data)
+#np.random.shuffle(training_data)
 
 #Declaring x_train and y_train data
 x_train_data, y_train_data = training_data[:, 0:FFT_Hz], training_data[:, FFT_Hz]
