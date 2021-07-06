@@ -64,23 +64,23 @@ while (i<length(Data.t_HCmotor) && k<length(t_range))
 end
 
 %%
-Fs = 1000;
+Fs = 100;
 Fs_ = Fs/2;
 FSS_sum = sum(transpose(Data_i.FSS));
 for i = 1:length(FSS_sum)-Fs_
-    FSS_sum_array = FSS_sum(i:i+Fs_);
+    FSS_sum_array = FSS_sum(i:i+Fs_-1);
     FSS_sum_FFT = fft(FSS_sum_array);
     P2 = abs(FSS_sum_FFT/Fs_);
     P1 = P2(1:Fs_/2+1);
     P1(2:end-1) = 2*P1(2:end-1);
     f = Fs*(0:(Fs_/2))/Fs_;
     figure(1)
-    subplot(2,1,1)
+    subplot(3,1,1)
+    plot(abs(FSS_sum_array))
+    ylim([4000000 9000000])
+    subplot(3,1,2)
     set(gcf, 'Position', [500 500 2000 1000])
     stem(f,P1)
-    ylim([0 50000])
-    subplot(2,1,2)
+    subplot(3,1,3)
     stem(abs(Data_i.HCmotor(i+Fs_)))
 end
-
-
