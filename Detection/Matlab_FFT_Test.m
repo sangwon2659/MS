@@ -1,4 +1,3 @@
-
 %% Sensor system validation
 clear all
 close all
@@ -7,7 +6,7 @@ t_step=0.005;
 
 %% Bag Read
 varname = strings;
-filename = "BagFile/2021-06-08-15-01-03.bag";
+filename = "2021-06-08-15-01-03.bag";
 bag = rosbag(filename);
 k = 1;
 for i = 1 : length(bag.AvailableTopics.Row)
@@ -64,9 +63,9 @@ while (i<length(Data.t_HCmotor) && k<length(t_range))
 end
 
 %%
-Fs = 500;
+Fs = 300;
 FSS_sum = sum(transpose(Data_i.FSS));
-for i = 500:10:length(FSS_sum)-Fs
+for i = 4200:10:5400
     %FFT Computation
     FSS_sum_array = FSS_sum(i:i+Fs-1);
     FSS_sum_FFT = fft(FSS_sum_array);
@@ -76,7 +75,6 @@ for i = 500:10:length(FSS_sum)-Fs
     f = Fs*(0:(Fs/2))/Fs;
     f = f(2:end);
     P1 = P1(2:end);
-    FFT_(i-499,:) = P1;
     
     %Covariance Computation
     %transpose(X) declared as FFT_diff for convenience)
@@ -105,26 +103,74 @@ for i = 500:10:length(FSS_sum)-Fs
     hold on
     stem(200, 9000000)
     %}
-    %subplot(2,1,1)
-    set(gcf, 'Position', [500 500 2000 1000])
+    subplot(1,2,2)
+    set(gcf, 'Position', [0 0 1850 600])
     stem(f,P1)    
     ylim([0 200000])
     grid on
-    title('FFT Data')
+    title('FFT Data of Sample Frequency 150Hz')
     ylabel('FFT Amplitude')
     xlabel('Sample Frequency(Hz)')
-    %subplot(2,1,2)
+    %subplot(1,2,2)
     %title('Slip Ground Truth Data')
     %ylabel('Slip == 10')
     %ylim([0 5000000])
     %stem(Cov)
     if(abs(Data_i.HCmotor(i+Fs-1))==10)
-        text(150, 120000, 'Slip', 'Color', 'red', 'FontSize', 28)
+        text(100, 120000, 'Slip', 'Color', 'red', 'FontSize', 40)
     
     else
-        text(150, 120000, 'No Slip', 'FontSize', 28)
+        text(100, 120000, 'No Slip', 'FontSize', 40)
     end
+
+    Fs_=20;
+    FSS_sum_array_ = FSS_sum(i+280:i+300-1);
+    FSS_sum_FFT_ = fft(FSS_sum_array_);
+    P2_ = abs(FSS_sum_FFT_/Fs_);
+    P1_ = P2_(1:Fs_/2+1);
+    P1_(2:end-1) = 2*P1_(2:end-1);
+    f_ = Fs_*(0:(Fs_/2))/Fs_;
+    f_ = f_(2:end);
+    P1_ = P1_(2:end);
+    
+    subplot(1,2,1)
+    stem(f_,P1_)    
+    ylim([0 200000])
+    grid on
+    title('FFT Data of Sample Frequency 10Hz')
+    ylabel('FFT Amplitude')
+    xlabel('Sample Frequency(Hz)')
+    if(abs(Data_i.HCmotor(i+Fs-1))==10)
+        text(7, 120000, 'Slip', 'Color', 'red', 'FontSize', 40)
+    else
+        text(7, 120000, 'No Slip', 'FontSize', 40)
+    end
+    
+    suptitle(['FFT Data of Sample Frequencies 10Hz and 150Hz (Timestep: ' num2str(i-4200),')'])
+    
+    frame = getframe(1);
+    im = frame2im(frame);
+    [imind, cm] = rgb2ind(im,256);
+    filename_ = 'saved_.gif';
+    del = 0.1;
+    if(i == 4200)
+      imwrite(imind,cm,filename_,'gif','Loopcount',inf,'DelayTime',del);
+    else
+      imwrite(imind,cm,filename_,'gif','WriteMode','append','DelayTime',del);
+    end
+    
     %figure(2)
     %stem(abs(Data_i.HCmotor(i+Fs-1)))
     
 end
+
+
+
+
+
+
+
+
+
+
+
