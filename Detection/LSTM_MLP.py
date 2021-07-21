@@ -12,7 +12,7 @@ from pandas import read_csv
 
 ###################### Parameter Variables ######################
 
-FFT_Hz = 50
+FFT_Hz = 50 
 train_min = 4500
 train_max = 5500
 test_min = 7750
