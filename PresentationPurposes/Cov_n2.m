@@ -6,7 +6,7 @@ t_step=0.005;
 
 %% Bag Read
 varname = strings;
-filename = "2021-06-08-15-01-03.bag";
+filename = "rosbag/0721Screw_Not_Tight.bag";
 bag = rosbag(filename);
 k = 1;
 for i = 1 : length(bag.AvailableTopics.Row)
@@ -62,35 +62,40 @@ while (i<length(Data.t_HCmotor) && k<length(t_range))
    k = k+1;
 end
 
+%% Combining FSS Data
+FSS_Together = Data_i.FSS;
+FSS_Together(:,6:10) = Data_i.FSS_;
+
 %%
-FSS_sum = sum(transpose(Data_i.FSS));
-Initial = 4400;
-Final = 5600;
+FSS_sum = sum(transpose(FSS_Together));
+Initial = 1670;
+Final = 3200;
+
 for i = Initial:10:Final
    
     %Covariance Computation
     %transpose(X) declared as FFT_diff for convenience)
     
-    FFT_diff = [Data_i.FSS(i,:)-Data_i.FSS(i-1,:);...
-        Data_i.FSS(i-1,:)-Data_i.FSS(i-2,:)];
+    FFT_diff = [FSS_Together(i,:)-FSS_Together(i-1,:);...
+        FSS_Together(i-1,:)-FSS_Together(i-2,:)];
     
     FFT_diff = abs(FFT_diff);
     temp = transpose(FFT_diff)*FFT_diff;
     Cov = sum(temp(:)) - trace(temp);
    
     figure(1)
-    set(gcf, 'Position', [0 0 1850 600])
+    set(gcf, 'Position', [0 200 800 500], 'color', 'white')
     stem(1,Cov, 'LineWidth', 2.5)    
     xlim([0 2])
-    ylim([0 35000000])
+    ylim([0 1200000000])
     grid on
-    title(['Covariance of Data with Window Size n=2 (Timestep: ' num2str(i-Initial),')'])
+    title(['Covariance of Data with Window Size n=2 (Timestep: ' num2str(i-Initial),')'], 'FontSize', 16)
     ylabel('Covariance Amplitude')
     set(gca,'xtick',[])
     if(abs(Data_i.HCmotor(i))==10)
-        text(1.5, 20000000, 'Slip', 'Color', 'red', 'FontSize', 40)
+        text(1.3, 900000000, 'Slip', 'Color', 'red', 'FontSize', 36)
     else
-        text(1.5, 20000000, 'No Slip', 'FontSize', 40)
+        text(1.3, 900000000, 'No Slip', 'FontSize', 36)
     end
     
     frame = getframe(1);
