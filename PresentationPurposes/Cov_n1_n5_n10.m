@@ -6,7 +6,7 @@ t_step=0.005;
 
 %% Bag Read
 varname = strings;
-filename = "2021-06-08-15-01-03.bag";
+filename = "rosbag/0721Screw_Not_Tight.bag";
 bag = rosbag(filename);
 k = 1;
 for i = 1 : length(bag.AvailableTopics.Row)
@@ -62,19 +62,24 @@ while (i<length(Data.t_HCmotor) && k<length(t_range))
    k = k+1;
 end
 
+%% Combining FSS Data
+FSS_Together = Data_i.FSS;
+FSS_Together(:,6:10) = Data_i.FSS_;
+
 %%
-FSS_sum = sum(transpose(Data_i.FSS));
-Initial = 4400;
-Final = 5600;
+FSS_sum = sum(transpose(FSS_Together));
+Initial = 1670;
+Final = 3200;
+
 for i = Initial:10:Final
    
     %Covariance Computation
     %transpose(X) declared as FFT_diff for convenience)
     
     figure(1)
-    set(gcf, 'Position', [0 0 1850 1000])
+    set(gcf, 'Position', [0 0 1850 1000], 'color', 'white')
     
-    FFT_diff = [Data_i.FSS(i,:)-Data_i.FSS(i-1,:)];
+    FFT_diff = [FSS_Together(i,:)-FSS_Together(i-1,:)];
         
     FFT_diff = abs(FFT_diff);
     temp = transpose(FFT_diff)*FFT_diff;
@@ -83,22 +88,22 @@ for i = Initial:10:Final
     subplot(3,1,1)
     stem(1, Cov, 'LineWidth', 2.5)    
     xlim([0 2])
-    ylim([0 100000000])
+    ylim([0 5000000000])
     grid on
     title('Covariance of Data with Window Size n=1')
     ylabel('Covariance Amplitude')
     set(gca,'xtick',[])
     if(abs(Data_i.HCmotor(i))==10)
-        text(1.5, 25000000, 'Slip', 'Color', 'red', 'FontSize', 40)
+        text(1.5, 3600000000, 'Slip', 'Color', 'red', 'FontSize', 60)
     else
-        text(1.5, 25000000, 'No Slip', 'FontSize', 40)
+        text(1.5, 3600000000, 'No Slip', 'FontSize', 60)
     end
     
-    FFT_diff_2 = [Data_i.FSS(i,:)-Data_i.FSS(i-1,:);...
-        Data_i.FSS(i-1,:)-Data_i.FSS(i-2,:);...
-        Data_i.FSS(i-2,:)-Data_i.FSS(i-3,:);...
-        Data_i.FSS(i-3,:)-Data_i.FSS(i-4,:);...
-        Data_i.FSS(i-4,:)-Data_i.FSS(i-5,:)];
+    FFT_diff_2 = [FSS_Together(i,:)-FSS_Together(i-1,:);...
+        FSS_Together(i-1,:)-FSS_Together(i-2,:);...
+        FSS_Together(i-2,:)-FSS_Together(i-3,:);...
+        FSS_Together(i-3,:)-FSS_Together(i-4,:);...
+        FSS_Together(i-4,:)-FSS_Together(i-5,:)];
     
     FFT_diff_2 = abs(FFT_diff_2);
     temp_2 = transpose(FFT_diff_2)*FFT_diff_2;
@@ -107,22 +112,22 @@ for i = Initial:10:Final
     subplot(3,1,2)
     stem(1, Cov_2, 'LineWidth', 2.5)    
     xlim([0 2])
-    ylim([0 100000000])
+    ylim([0 5000000000])
     grid on
     title('Covariance of Data with Window Size n=5')
     ylabel('Covariance Amplitude')
     set(gca,'xtick',[])
     
-    FFT_diff_3 = [Data_i.FSS(i,:)-Data_i.FSS(i-1,:);...
-        Data_i.FSS(i-1,:)-Data_i.FSS(i-2,:);...
-        Data_i.FSS(i-2,:)-Data_i.FSS(i-3,:);...
-        Data_i.FSS(i-3,:)-Data_i.FSS(i-4,:);...
-        Data_i.FSS(i-4,:)-Data_i.FSS(i-5,:);...
-        Data_i.FSS(i-5,:)-Data_i.FSS(i-6,:);...
-        Data_i.FSS(i-6,:)-Data_i.FSS(i-7,:);...
-        Data_i.FSS(i-7,:)-Data_i.FSS(i-8,:);...
-        Data_i.FSS(i-8,:)-Data_i.FSS(i-9,:);...
-        Data_i.FSS(i-9,:)-Data_i.FSS(i-10,:)];
+    FFT_diff_3 = [FSS_Together(i,:)-FSS_Together(i-1,:);...
+        FSS_Together(i-1,:)-FSS_Together(i-2,:);...
+        FSS_Together(i-2,:)-FSS_Together(i-3,:);...
+        FSS_Together(i-3,:)-FSS_Together(i-4,:);...
+        FSS_Together(i-4,:)-FSS_Together(i-5,:);...
+        FSS_Together(i-5,:)-FSS_Together(i-6,:);...
+        FSS_Together(i-6,:)-FSS_Together(i-7,:);...
+        FSS_Together(i-7,:)-FSS_Together(i-8,:);...
+        FSS_Together(i-8,:)-FSS_Together(i-9,:);...
+        FSS_Together(i-9,:)-FSS_Together(i-10,:)];
         
     FFT_diff_3 = abs(FFT_diff_3);
     temp_3 = transpose(FFT_diff_3)*FFT_diff_3;
@@ -131,7 +136,7 @@ for i = Initial:10:Final
     subplot(3,1,3)
     stem(1, Cov_3, 'LineWidth', 2.5)    
     xlim([0 2])
-    ylim([0 100000000])
+    ylim([0 5000000000])
     grid on
     title('Covariance of Data with Window Size n=10')
     ylabel('Covariance Amplitude')
