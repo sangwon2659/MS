@@ -6,7 +6,7 @@ t_step=0.005;
 
 %% Bag Read
 varname = strings;
-filename = "2021-06-08-15-01-03.bag";
+filename = "rosbag/0721Screw_Not_Tight.bag";
 bag = rosbag(filename);
 k = 1;
 for i = 1 : length(bag.AvailableTopics.Row)
@@ -62,13 +62,18 @@ while (i<length(Data.t_HCmotor) && k<length(t_range))
    k = k+1;
 end
 
+%% Combining FSS Data
+FSS_Together = Data_i.FSS;
+FSS_Together(:,6:10) = Data_i.FSS_;
+
 %%
-FSS_sum = sum(transpose(Data_i.FSS));
-Initial = 4400;
-Final = 5600;
+FSS_sum = sum(transpose(FSS_Together));
+Initial = 1670;
+Final = 3200;
 for i = Initial:10:Final
+    
     figure(1)
-    set(gcf, 'Position', [0 0 1850 1000])
+    set(gcf, 'Position', [0 0 1850 1000], 'color', 'white')
     
     Fs = 20;
     FSS_sum_array = FSS_sum(i-Fs:i);
@@ -83,15 +88,15 @@ for i = Initial:10:Final
     subplot(3,1,1)
     stem(f,P1, 'LineWidth', 2.5)    
     xlim([0 11])
-    ylim([0 300000])
+    ylim([0 250000])
     grid on
     title('FFT Data of Sample Frequency 10Hz')
     ylabel('FFT Amplitude')
     xlabel('Sample Frequency(Hz)')
-    if(abs(Data_i.HCmotor(i+Fs-1))==10)
-        text(8, 180000, 'Slip', 'Color', 'red', 'FontSize', 60)
+    if(abs(Data_i.HCmotor(i))==10)
+        text(8, 160000, 'Slip', 'Color', 'red', 'FontSize', 60)
     else
-        text(8, 180000, 'No Slip', 'FontSize', 60)
+        text(8, 160000, 'No Slip', 'FontSize', 60)
     end
     
     Fs_2 = 160;
@@ -107,7 +112,7 @@ for i = Initial:10:Final
     subplot(3,1,2)
     stem(f_2, P1_2, 'LineWidth', 2.5)
     xlim([0 81])
-    ylim([0 300000])
+    ylim([0 250000])
     grid on
     title('FFT Data of Sample Frequency 80Hz')
     ylabel('FFT Amplitude')
@@ -126,7 +131,7 @@ for i = Initial:10:Final
     subplot(3,1,3)
     stem(f_3, P1_3, 'LineWidth', 2.5)
     xlim([0 151])
-    ylim([0 300000])
+    ylim([0 250000])
     grid on
     title('FFT Data of Sample Frequency 150Hz')
     ylabel('FFT Amplitude')
