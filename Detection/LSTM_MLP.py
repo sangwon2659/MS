@@ -12,19 +12,19 @@ from pandas import read_csv
 
 ###################### Parameter Variables ######################
 
-FFT_Hz = 50 
-train_min = 4500
-train_max = 5500
-test_min = 7750
-test_max = 8000
-epoch = 100
+FFT_Hz = 10+1
+train_min = 200
+train_max = 7000
+test_min = 9500
+test_max = 11500
+epoch = 10
 
 #################################################################
 
 ################ Loading and Normalizing Raw Data ################
 
 #Loading Data
-data = read_csv("Data_.csv", header=None)
+data = read_csv("Data_10.csv", header=None)
 data = np.array(data)
 
 #Stating necessary variables
@@ -34,8 +34,9 @@ test_samples = test_max - test_min
 
 #Preparation for FFT data normalization
 data_FFT = data[:, 0:FFT_Hz]
-data_FFT_max, data_FFT_min = data_FFT.max(), data_FFT.min()
-data_FFT_max_min_diff = data_FFT_max - data_FFT_min
+#data_FFT_max, data_FFT_min = data_FFT.max(), data_FFT.min()
+#data_FFT_max_min_diff = data_FFT_max - data_FFT_min
+
 #Slip data into binary classes
 for i in range(total_samples):
 	if data[i,FFT_Hz] != 0.0:
@@ -53,7 +54,7 @@ training_data = data[train_min:train_max, :]
 x_train_data, y_train_data = training_data[:, 0:FFT_Hz], training_data[:, FFT_Hz]
 
 #Data normalization for x_train data
-x_train_data = (x_train_data/data_FFT_max_min_diff)*100
+#x_train_data = (x_train_data/data_FFT_max_min_diff)*100
 
 #Reshaping x_train and y_train data
 x_train_data = x_train_data.reshape(train_samples, FFT_Hz, 1)
@@ -67,7 +68,7 @@ test_data = data[test_min:test_max, :]
 x_test_data, y_test_data = test_data[:, 0:FFT_Hz], test_data[:, FFT_Hz]
 
 #Data normalization for x_test data
-x_test_data = (x_test_data/data_FFT_max_min_diff)*100
+#x_test_data = (x_test_data/data_FFT_max_min_diff)*100
 
 #Reshaping x_test and x_test data
 x_test_data = x_test_data.reshape(test_samples, FFT_Hz, 1)
@@ -80,20 +81,20 @@ y_test_data = y_test_data.reshape(test_samples, 1, 1)
 #Model is a LSTM combined with MLP for binary slip classification purposes
 
 model = Sequential()
-model.add(LSTM(50, activation='relu', input_shape=(FFT_Hz,1)))
-model.add(Dense(1024))
+model.add(LSTM(500, activation='relu', input_shape=(FFT_Hz,1)))
+model.add(Dense(1024, activation = 'relu'))
 #model.add(Dropout(0.3))
-model.add(Dense(512))
+model.add(Dense(512, activation = 'relu'))
 #model.add(Dropout(0.3))
-model.add(Dense(256))
+model.add(Dense(256, activation = 'relu'))
 #model.add(Dropout(0.3))
-model.add(Dense(64))
+model.add(Dense(64, activation = 'relu'))
 #model.add(Dropout(0.3))
-model.add(Dense(1))
+model.add(Dense(1, activation = 'sigmoid'))
 
 model.summary()
 
-model.compile(optimizer='adam', loss='mse', metrics=['accuracy'])
+model.compile(optimizer='adam', loss='binary_crossentropy', metrics=['accuracy'])
 
 '''
 
@@ -148,4 +149,3 @@ plt.show()
 evaluation = model.evaluate(x_test_data, y_test_data)
 
 ##################################################################
-
