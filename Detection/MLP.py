@@ -1,17 +1,19 @@
 import numpy as np
 import tensorflow as tf
 import matplotlib.pyplot as plt
+import pandas as pd
 from keras import optimizers
 from numpy import array
 from keras.models import Sequential
 from keras.layers import Dense, LSTM
+from sklearn.metrics import f1_score
 
 FFT_Hz = 10+1
 train_min = 200
 train_max = 7000
 test_min = 9500
 test_max = 11500
-epoch = 10
+epoch = 2
 
 # Loading data
 data = np.loadtxt("Data_10.csv", delimiter=",")
@@ -33,20 +35,20 @@ y_train_data = y_train_data.reshape(train_sample_num, 1)
 
 # Preprocessing Y data
 for i in range(train_max-train_min):
-	if y_train_data[i] != 0.0:
-		y_train_data[i] = 1
-	else:
-		y_train_data[i] = 0
+        if y_train_data[i] != 0.0:
+                y_train_data[i] = 1
+        else:
+                y_train_data[i] = 0
 
 # Organizing test data
 x_test_data = data[test_min:test_max, 0:FFT_Hz]
 y_test_data = data[test_min:test_max, FFT_Hz]
 
 for i in range(test_max-test_min):
-	if y_test_data[i] != 0.0:
-		y_test_data[i] = 1
-	else:
-		y_test_data[i] = 0
+        if y_test_data[i] != 0.0:
+                y_test_data[i] = 1
+        else:
+                y_test_data[i] = 0
 
 # Defining model
 model = Sequential()
@@ -78,3 +80,20 @@ plt.show()
 
 # Evaluating results
 evaluation = model.evaluate(x_test_data, y_test_data)
+
+y_true = y_test_data
+y_true = y_true.reshape(len(y_true))
+print(y_true)
+y_pred = model.predict(x_test_data)
+y_pred = y_pred.reshape(len(y_pred))
+for i in range(len(y_pred)):
+        if y_pred[i]>=0.5:
+                y_pred[i] = 1
+        else:
+                y_pred[i] = 0
+print(y_pred)
+dataframe = pd.DataFrame(y_pred)
+dataframe.to_csv("PredictionData.csv")
+
+print(f1_score(y_true, y_pred, average='macro'))
+~                                                   
