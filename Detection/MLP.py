@@ -16,12 +16,13 @@ epoch = 10
 # Loading data
 data = np.loadtxt("Data_10.csv", delimiter=",")
 
-data_FFTCov = data[:, 0:FFT_Hz]
-data_max_FFT = data_FFTCov[:, 0:FFT_Hz-1].max()  
-data_max_Cov = data_FFTCov[:, FFT_Hz-1].max()
 train_sample_num = train_max - train_min
-data[:, 0:FFT_Hz-1] = data[:, 0:FFT_Hz-1]/data_max_FFT
-data[:, FFT_Hz-1] = data[:, FFT_Hz-1]/data_max_Cov
+
+#data_FFTCov = data[:, 0:FFT_Hz]
+#data_max_FFT = data_FFTCov[:, 0:FFT_Hz-1].max()  
+#data_max_Cov = data_FFTCov[:, FFT_Hz-1].max()
+#data[:, 0:FFT_Hz-1] = data[:, 0:FFT_Hz-1]/data_max_FFT
+#data[:, FFT_Hz-1] = data[:, FFT_Hz-1]/data_max_Cov
 
 # Filtering data
 x_train_data = data[train_min:train_max, 0:FFT_Hz]
