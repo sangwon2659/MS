@@ -8,15 +8,15 @@ from keras.models import Sequential
 from keras.layers import Dense, LSTM
 from sklearn.metrics import f1_score
 
-FFT_Hz = 10+1
+FFT_Hz = 55
 train_min = 200
 train_max = 7000
 test_min = 9500
 test_max = 11500
-epoch = 2
+epoch = 100
 
 # Loading data
-data = np.loadtxt("Data_10.csv", delimiter=",")
+data = np.loadtxt("Data_10_5_Samples.csv", delimiter=",")
 
 train_sample_num = train_max - train_min
 
@@ -57,6 +57,7 @@ model.add(Dense(512, activation='relu'))
 model.add(Dense(256, activation='relu'))
 model.add(Dense(64, activation='relu'))
 model.add(Dense(32, activation='relu'))
+model.add(Dense(16, activation='relu'))
 model.add(Dense(1, activation='sigmoid'))
 
 model.summary()
@@ -96,4 +97,5 @@ dataframe = pd.DataFrame(y_pred)
 dataframe.to_csv("PredictionData.csv")
 
 print(f1_score(y_true, y_pred, average='macro'))
-~                                                   
+
+model.save("MLP_Model.h5")
