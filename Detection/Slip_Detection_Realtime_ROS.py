@@ -96,7 +96,7 @@ def talker():
 			# Computing the Cov and FFT
 			temp = data.sum()
 			if temp>5:
-				temp = 0.3
+				temp = data_previous
 			data_sum = np.append(data_sum, temp)
 			if ver==0:
 				data_previous = data
