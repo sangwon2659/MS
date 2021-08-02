@@ -19,12 +19,12 @@ n_ch = 5
 # Declaring an array so store data and display it later
 data = np.array((0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0))
 data_sum = np.array((0))
-value = data
+FSS_value = data
 alpha = 0.0
 thread_ = 0.01
 n = 10
 
-Data_Vector = np.array((0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0))
+Data_Vector = np.array((0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0))
 Slip_Vector = Data_Vector
 
 Slip_NoSlip = 0.0
@@ -40,14 +40,14 @@ n_sample = 20
 
 # Declaring the USB port for which the arduino is connected
 ser = serial.Serial(port = '/dev/ttyUSB2', baudrate=115200)
-ser_ = serial.Serial(port = '/dev/ttyUSB1', baudrate=115200)
+ser_ = serial.Serial(port = '/dev/ttyUSB0', baudrate=115200)
 
 def thread_run():
-	global pub, pub2, pub3, FFT, value, Data_Vector, Slip_Vector, Slip_NoSlip
+	global pub, pub2, pub3, FFT, FSS_value, Data_Vector, Slip_Vector, Slip_NoSlip
 	# Publishing the FFS and FFT data
 	pub.publish(Slip_NoSlip)
-	pub2.publish(Slip_Vector)
-	#pub3.publish(FSS_value)
+	#pub2.publish(Slip_Vector)
+	#pub3.publish(data)
 	# Displaying the data on the log
 	#rospy.loginfo(Slip_NoSlip)
 	#rospy.loginfo(Slip_Vector)
@@ -55,19 +55,19 @@ def thread_run():
 	threading.Timer(thread_, thread_run).start()
 
 def talker():
-	global pub, pub2, pub3, data_sum, value, data, Cov, Data_Matrix, Cov_Matrix, FFT_Vector, Data_Vector, Slip_Vector, Slip_NoSlip
+	global pub, pub2, pub3, data_sum, FSS_value, data, Cov, Data_Matrix, Cov_Matrix, FFT_Vector, Data_Vector, Slip_Vector, Slip_NoSlip
 	
 	# Initializing the node with the name 'talker'
 	rospy.init_node('SlipDetection', anonymous=True)
 	# Declaring publisher with topic name 'FFT' and message name 'FFT'
 	pub = rospy.Publisher('Slip_NoSlip', SlipDetection, queue_size=1)
-	pub2 = rospy.Publisher('Data_Vector', DataVector, queue_size=1)
-	#pub3 = rospy.Publisher('FSS', FSS, queue_size= 1)
+	pub2 = rospy.Publisher('Slip_Vector', FSS, queue_size=1)
+	pub3 = rospy.Publisher('FSS', FSS, queue_size= 1)
 	
 	# Loading model
 	MLP_Model = load_model('MLP_Model.h5')
 	ver = 0
-	reference = [55,56,57,58,59,60,61,62,63,64,65]
+	reference = [50,51,52,53,54,55,56,57,58,59]
 
 	ser.reset_input_buffer()
 	ser_.reset_input_buffer()
@@ -90,11 +90,13 @@ def talker():
 			
 			# Normalization with 8000000 (an approx of 2^23)
 			data = data/8000000	
-			
-			FSS_value = (alpha*value+(1-alpha)*data).astype('int32')
+				
+			#FSS_value = (alpha*FSS_value+(1-alpha)*data).astype('int32')
 						
 			# Computing the Cov and FFT
 			temp = data.sum()
+			if temp>5:
+				temp = 0.3
 			data_sum = np.append(data_sum, temp)
 			if ver==0:
 				data_previous = data
@@ -110,22 +112,19 @@ def talker():
 				Data_Matrix = np.delete(Data_Matrix, 10, axis=0)
 				data_previous[:] = data[:]
 				Cov_Matrix = np.dot(np.transpose(Data_Matrix), Data_Matrix)
-				Cov = np.sum(Cov_Matrix)-np.trace(Cov_Matrix)
+				Data_Vector[9] = np.sum(Cov_Matrix)-np.trace(Cov_Matrix)
 
 				# Computing FFT
 				FFT_Vector = np.fft.fft(data_sum)
-				FFT_Vector = FFT_Vector[range(int(len(data_sum)/2))]	
-				FFT_Vector = abs(FFT_Vector)		
+				FFT_Vector = FFT_Vector[1:10]	
+				Data_Vector[0:9] = abs(FFT_Vector)		
 
-				# Combining Cov and FFT	
-				Data_Vector[0:10] = FFT_Vector
-				Data_Vector[10] = Cov
-				
 				Slip_Vector = np.hstack((Data_Vector, Slip_Vector))
-				if len(Slip_Vector)==66:
+			
+				if len(Slip_Vector)==60:
 					Slip_Vector = np.delete(Slip_Vector, reference)
-					Slip_Vector_Reshaped = Slip_Vector.reshape(1,55)
-					Slip_NoSlip = MLP_Model.predict(Slip_Vector_Reshaped)	
+					Slip_Vector_Reshaped = Slip_Vector.reshape(1,50)
+					Slip_NoSlip = MLP_Model.predict(Slip_Vector_Reshaped)
 
 if __name__ == '__main__':
     try:
