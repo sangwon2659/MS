@@ -13,15 +13,14 @@ n_ch = 5
 
 # Declaring an array to store data and display it later
 # Variables for FSS and FSS sum
-FSS = np.array((0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0))
+FSS = np.zeros(10)
 FSS_previous = FSS
 FSS_sum_temp = 0.0
 FSS_sum = np.array((0.0))
-i = 0
 
 # Variables for the Cov and FFT combined data and the classification result
-Slip_Vector = np.array((0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0))
-reference = [50,51,52,53,54,55,56,57,58,59]
+Slip_Vector = np.zeros(10)
+reference = range(50,60)
 Slip_Vector_sum = Slip_Vector
 Slip_NoSlip = 0.0
 
@@ -51,7 +50,7 @@ def thread_run():
 	threading.Timer(thread_, thread_run).start()
 
 def talker():
-	global pub, pub2, pub3, Slip_NoSlip, Slip_Vector_sum, FSS_sum_temp, FSS, FSS_previous, FSS_sum, Slip_Vector, Slip_Vector, Slip_NoSlip, Diff_Matrix, i
+	global pub, pub2, pub3, Slip_NoSlip, Slip_Vector_sum, FSS_sum_temp, FSS, FSS_previous, FSS_sum, Slip_Vector, Slip_Vector, Slip_NoSlip, Diff_Matrix
 	
 	# Initializing the node with the name 'SlipDetection'
 	rospy.init_node('SlipDetection', anonymous=True)
@@ -90,9 +89,10 @@ def talker():
 			
 			# Filtering the sum data
 			# If new sum not within boundary, it is set to be the previous sum
-			if FSS_sum_temp > 1 or FSS_sum_temp < 0.1:
+			if FSS_sum_temp > 1.5 or FSS_sum_temp < -0.1 and np.size(FSS_sum)>1:
+				print(FSS_sum_temp)
 				FSS_sum_temp = FSS_sum[-1]
-			
+
 			# Putting FSS data into FSS_sum queue
 			FSS_sum = np.append(FSS_sum, FSS_sum_temp)
 
@@ -108,7 +108,7 @@ def talker():
 				# Deleting the earliest FSS_diff
 				Diff_Matrix = np.delete(Diff_Matrix, 10, axis=0)
 				# Updating FSS_previous with the latest FSS data
-				FSS_previous = FSS
+				FSS_previous[:] = FSS[:]
 				# Computing the covariance
 				Cov_Matrix = np.dot(np.transpose(Diff_Matrix), Diff_Matrix)
 				# Inserting the covariance value into the last position of Slip Vector array
